@@ -6,6 +6,6 @@ import Main from "../_component/Main";
 export default function Page() {
   const router = useRouter();
 
-  router.replace("/i/flow/login");
+  router.replace("/i/flow/signup");
   return <Main />;
 }
