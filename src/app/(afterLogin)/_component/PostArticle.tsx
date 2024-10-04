@@ -27,8 +27,8 @@ const PostArticle = ({ children, post }: Props) => {
   };
 
   return (
-    <article onClick={onClick} className={style.post}>
-      children
+    <article onClickCapture={onClick} className={style.post}>
+      {children}
     </article>
   );
 };

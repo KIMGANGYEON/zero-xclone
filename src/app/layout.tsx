@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import styles from "./page.module.css";
+import { MSWComponent } from "./_component/MSWComponent";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <MSWComponent />
         {children}
       </body>
     </html>
