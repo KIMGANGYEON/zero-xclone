@@ -1,62 +1,32 @@
 "use client";
 
-import { redirect, useRouter } from "next/navigation";
+import { useFormState, useFormStatus } from "react-dom";
+import onSubmit from "../_lib/signup";
 import BackButton from "./BackButton";
 import style from "./signup.module.css";
-import { useState } from "react";
+
+function showMessage(message: string) {
+  if (message === "no_id") {
+    return "아이디가 없습니다";
+  }
+  if (message === "no_name") {
+    return "닉네임이 없습니다";
+  }
+  if (message === "no_password") {
+    return "비밀번호가 없습니다";
+  }
+  if (message === "no_image") {
+    return "사진이 없습니다";
+  }
+  if (message === "user_exists") {
+    return "유저가 존재합니다";
+  }
+  return "";
+}
 
 export default function SignupModal() {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 기본 폼 제출 동작 방지
-    const formData = new FormData(e.currentTarget); // 폼 데이터를 가져옴
-
-    if (!formData.get("id")) {
-      setErrorMessage("아이디가 없습니다.");
-      return;
-    }
-    if (!formData.get("name")) {
-      setErrorMessage("닉네임이 없습니다.");
-      return;
-    }
-    if (!formData.get("password")) {
-      setErrorMessage("비밀번호가 없습니다.");
-      return;
-    }
-    if (!formData.get("image")) {
-      setErrorMessage("이미지가 없습니다.");
-      return;
-    }
-
-    let shouldRedirect = false;
-
-    try {
-      const response: Response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users`,
-        {
-          method: "post",
-          body: formData,
-          credentials: "include",
-        }
-      );
-      console.log(response.status);
-      if (response.status === 403) {
-        setErrorMessage("이미 존재하는 사용자입니다.");
-        return;
-      }
-      console.log(await response.json());
-      shouldRedirect = true;
-    } catch (err) {
-      console.error(err);
-      setErrorMessage("서버 오류가 발생했습니다.");
-    }
-
-    if (shouldRedirect) {
-      router.push("/home");
-    }
-  };
+  const [state, formAction] = useFormState(onSubmit, { message: null });
+  const { pending } = useFormStatus();
 
   return (
     <>
@@ -66,11 +36,8 @@ export default function SignupModal() {
             <BackButton />
             <div>계정을 생성하세요.</div>
           </div>
-          <form onSubmit={handleSubmit}>
+          <form action={formAction}>
             <div className={style.modalBody}>
-              {errorMessage && (
-                <div className={style.error}>{errorMessage}</div>
-              )}
               <div className={style.inputDiv}>
                 <label className={style.inputLabel} htmlFor="id">
                   아이디
@@ -125,9 +92,14 @@ export default function SignupModal() {
               </div>
             </div>
             <div className={style.modalFooter}>
-              <button type="submit" className={style.actionButton}>
+              <button
+                type="submit"
+                className={style.actionButton}
+                disabled={pending}
+              >
                 가입하기
               </button>
+              <div className={style.error}>{showMessage(state?.message)}</div>
             </div>
           </form>
         </div>
